@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.2.21"
+kotlin = "2.4.20"
 agp = "8.13.2"
 # lint-api version = AGP version + 23.0.0
 lint = "31.13.2"
