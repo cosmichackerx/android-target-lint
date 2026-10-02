@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      # AGP and the Lint library move together (lint = AGP + 23); a lone bump of one breaks the build.
+      agp-and-lint:
+        patterns: ["com.android.*", "com.android.tools.lint*"]
+    cooldown:
+      default-days: 7
