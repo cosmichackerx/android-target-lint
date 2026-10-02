@@ -6,6 +6,7 @@ import com.android.tools.lint.detector.api.ConstantEvaluator
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
@@ -23,27 +24,19 @@ import org.w3c.dom.Attr
  */
 class FixedOrientationDetector : Detector(), XmlScanner, SourceCodeScanner {
 
-    private var isGame = false
-
-    override fun beforeCheckRootProject(context: com.android.tools.lint.detector.api.Context) {
-        isGame = false
-    }
-
     // ---- manifest -------------------------------------------------------------------------------------------
-    override fun getApplicableAttributes(): Collection<String> = listOf("screenOrientation", "appCategory")
+    override fun getApplicableAttributes(): Collection<String> = listOf("screenOrientation")
 
     override fun visitAttribute(context: XmlContext, attribute: Attr) {
         if (attribute.namespaceURI != ANDROID_URI) return
-        if (attribute.localName == "appCategory") {
-            if (attribute.value == "game") isGame = true
-            return
-        }
-        if (isGame || attribute.value !in MANIFEST_VALUES) return
+        if (attribute.value !in MANIFEST_VALUES || isGameApp(attribute.ownerElement)) return
         context.report(
             ISSUE_MANIFEST,
             attribute,
             context.getLocation(attribute),
             "`screenOrientation=\"${attribute.value}\"` is ignored on screens of 600dp and wider for apps that target API 36 or higher (this app: targetSdk ${context.project.targetSdk}); ${NO_OPT_OUT}",
+            LintFix.create().set().android().attribute("screenOrientation").value("unspecified")
+                .name("Set screenOrientation to unspecified").build(),
         )
     }
 

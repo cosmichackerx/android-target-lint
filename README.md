@@ -14,6 +14,23 @@ These checks use Lint's UAST/XML APIs, so they resolve classes (a method named `
 | `EdgeToEdgeOptOut` | warning | `android:windowOptOutEdgeToEdgeEnforcement` = `true` in a values resource |
 | `FixedOrientationManifest` | warning | `android:screenOrientation` portrait/landscape variants in the manifest (apps with `appCategory="game"` are exempt) |
 | `FixedOrientationCode` | warning | `setRequestedOrientation(...)` / `requestedOrientation =` with a fixed portrait/landscape constant |
+| `LargeScreenRestrictionsIgnored` | warning | `resizeableActivity="false"`, `minAspectRatio`, `maxAspectRatio` (ignored on 600dp+ screens for apps targeting 36; games exempt) |
+| `LargeScreenOptOutProperty` | warning | the temporary `PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY` opt-out (does not apply when targeting 37) |
+| `ContentCaptureEnabledDeprecated` | warning | `ContentCaptureManager.setContentCaptureEnabled(false)` (no longer disables Content Capture at targetSdk 37; use `FLAG_SECURE`) |
+| `BackgroundActivityStartLegacyMode` | warning | `ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED` (Android 17 asks apps to move to granular modes) |
+
+### Quick-fixes
+
+Offered in Android Studio and by `lint --apply-suggestions`-style tooling: `PredictiveBackOptOut` (set the attribute to `true`),
+`EdgeToEdgeOptOut` (set the opt-out to `false`), `FixedOrientationManifest` (`screenOrientation="unspecified"`),
+`LargeScreenRestrictionsIgnored` (remove the attribute / set `resizeableActivity="true"`), `LargeScreenOptOutProperty` (remove the property),
+`BackgroundActivityStartLegacyMode` (use `MODE_BACKGROUND_ACTIVITY_START_ALLOW_IF_VISIBLE`, which **changes behaviour**: check the launch still works).
+Each fix is covered by a `expectFixDiffs` test. There are no fixes for the back-handling rules; migrating to `OnBackPressedCallback` needs a human.
+
+The Android 17 rules (`ContentCaptureEnabledDeprecated`, `BackgroundActivityStartLegacyMode`) are taken from the
+[Android 17 behavior changes](https://developer.android.com/about/versions/17/behavior-changes-17) page (last updated 2026-10-01 when written).
+Other items on that page (local network permission, static final reflection, native `System.load`, SMS OTP delay, RFCOMM reads) were left out
+because no low-false-positive static check was found; [android-target-ready](https://github.com/cosmichackerx/android-target-ready) has heuristic rules for several of them.
 
 Behaviour is from the [Android 16 behavior changes](https://developer.android.com/about/versions/16/behavior-changes-16) and the [predictive back guide](https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture). Read those before relying on a message here.
 
@@ -36,6 +53,25 @@ dependencies {
   <issue id="OnBackPressedOverride" severity="error" />
 </lint>
 ```
+
+### Via GitHub Packages (Maven)
+
+Each release is also published as `io.github.cosmichackerx:android-target-lint:<version>` to GitHub Packages. **GitHub Packages requires
+authentication even for public packages** (a personal access token with `read:packages`), so the plain jar from Releases is the
+simpler route. If you want the Maven form:
+
+```kotlin
+// settings.gradle.kts / build.gradle.kts
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/cosmichackerx/android-target-lint")
+        credentials { username = providers.gradleProperty("gpr.user").get(); password = providers.gradleProperty("gpr.key").get() }
+    }
+}
+dependencies { lintChecks("io.github.cosmichackerx:android-target-lint:0.2.0") }
+```
+
+Maven Central is not used (it needs signing keys and a namespace verification that the repository owner has to do).
 
 ## Real output
 

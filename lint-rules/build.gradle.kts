@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    `maven-publish`
 }
 
 group = "io.github.cosmichackerx"
@@ -45,4 +46,35 @@ tasks.test {
     useJUnit()
     maxHeapSize = "1g"
     testLogging { events("passed", "failed", "skipped"); showStandardStreams = false }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("lintRules") {
+            artifactId = "android-target-lint"
+            from(components["java"])
+            pom {
+                name = "android-target-lint"
+                description = "Android Lint rules for the targetSdk 36/37 migration"
+                url = "https://github.com/cosmichackerx/android-target-lint"
+                licenses {
+                    license {
+                        name = "MIT"
+                        url = "https://opensource.org/licenses/MIT"
+                    }
+                }
+                scm { url = "https://github.com/cosmichackerx/android-target-lint" }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/cosmichackerx/android-target-lint")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }

@@ -52,6 +52,26 @@ object Stubs {
         """,
     ).indented()
 
+    val activityOptions: TestFile = java(
+        """
+        package android.app;
+        public class ActivityOptions {
+            public static final int MODE_BACKGROUND_ACTIVITY_START_ALLOWED = 1;
+            public static final int MODE_BACKGROUND_ACTIVITY_START_ALLOW_IF_VISIBLE = 4;
+            public ActivityOptions setPendingIntentBackgroundActivityStartMode(int mode) { return this; }
+        }
+        """,
+    ).indented()
+
+    val contentCaptureManager: TestFile = java(
+        """
+        package android.view.contentcapture;
+        public class ContentCaptureManager {
+            public void setContentCaptureEnabled(boolean enabled) {}
+        }
+        """,
+    ).indented()
+
     val all: Array<TestFile> = arrayOf(activity, dialog, keyEvent, activityInfo)
 
     fun manifestWith(target: Int, body: String): TestFile = manifest(
