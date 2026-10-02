@@ -1,0 +1,17 @@
+[versions]
+kotlin = "2.2.21"
+agp = "8.13.2"
+# lint-api version = AGP version + 23.0.0
+lint = "31.13.2"
+junit = "4.13.2"
+
+[libraries]
+lint-api = { module = "com.android.tools.lint:lint-api", version.ref = "lint" }
+lint-checks = { module = "com.android.tools.lint:lint-checks", version.ref = "lint" }
+lint-tests = { module = "com.android.tools.lint:lint-tests", version.ref = "lint" }
+lint = { module = "com.android.tools.lint:lint", version.ref = "lint" }
+junit = { module = "junit:junit", version.ref = "junit" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "agp" }
