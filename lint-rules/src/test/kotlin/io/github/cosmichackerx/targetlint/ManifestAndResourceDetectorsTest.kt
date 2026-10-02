@@ -34,7 +34,7 @@ class EdgeToEdgeOptOutDetectorTest : LintDetectorTest() {
 
     fun testBelow36TheMessageSaysItWillStop() {
         lint().files(Stubs.manifestWith(35, "<application/>"), theme("true")).run().expectWarningCount(1)
-            .expectContains("for apps that target API 36 or higher (this app: targetSdk 35)")
+            .expectContains("once the app targets API 36 (currently 35)")
     }
 
     fun testFalseIsFine() {
