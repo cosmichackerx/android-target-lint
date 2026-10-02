@@ -14,6 +14,10 @@ class TargetLintRegistry : IssueRegistry() {
         PredictiveBackOptOutDetector.ISSUE,
         FixedOrientationDetector.ISSUE_MANIFEST,
         FixedOrientationDetector.ISSUE_CODE,
+        LargeScreenRestrictionsDetector.ISSUE,
+        LargeScreenRestrictionsDetector.ISSUE_PROPERTY,
+        ContentCaptureDetector.ISSUE,
+        BackgroundActivityStartDetector.ISSUE,
     )
 
     override val api: Int = CURRENT_API

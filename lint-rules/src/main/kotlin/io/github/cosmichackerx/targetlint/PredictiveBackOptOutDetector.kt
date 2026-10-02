@@ -5,6 +5,7 @@ import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.XmlContext
@@ -25,6 +26,8 @@ class PredictiveBackOptOutDetector : Detector(), XmlScanner {
             attribute,
             context.getLocation(attribute),
             "Predictive back is switched off here (`enableOnBackInvokedCallback=\"false\"`). This is a temporary opt-out; migrate the back handling to `OnBackPressedCallback`.",
+            LintFix.create().set().android().attribute("enableOnBackInvokedCallback").value("true")
+                .name("Enable predictive back (set to true)").build(),
         )
     }
 

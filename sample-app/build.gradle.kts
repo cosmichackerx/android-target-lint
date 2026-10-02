@@ -18,7 +18,8 @@ android {
         abortOnError = false
         checkOnly += listOf(
             "OnBackPressedOverride", "KeyCodeBackHandling", "EdgeToEdgeOptOut",
-            "PredictiveBackOptOut", "FixedOrientationManifest", "FixedOrientationCode",
+            "PredictiveBackOptOut", "FixedOrientationManifest", "FixedOrientationCode", "LargeScreenRestrictionsIgnored",
+            "LargeScreenOptOutProperty", "ContentCaptureEnabledDeprecated", "BackgroundActivityStartLegacyMode",
         )
         textReport = true
         textOutput = layout.buildDirectory.file("reports/lint-results.txt").get().asFile

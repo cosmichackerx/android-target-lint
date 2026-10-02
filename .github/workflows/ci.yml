@@ -57,11 +57,11 @@ jobs:
         run: |
           report=sample-app/build/reports/lint-results.txt
           cat "$report"
-          for id in OnBackPressedOverride KeyCodeBackHandling EdgeToEdgeOptOut PredictiveBackOptOut FixedOrientationManifest FixedOrientationCode; do
+          for id in OnBackPressedOverride KeyCodeBackHandling EdgeToEdgeOptOut PredictiveBackOptOut FixedOrientationManifest FixedOrientationCode LargeScreenRestrictionsIgnored ContentCaptureEnabledDeprecated BackgroundActivityStartLegacyMode; do
             grep -q "\[$id from " "$report" || { echo "::error::missing $id"; exit 1; }
           done
           n=$(grep -c ' \[[A-Za-z]* from io.github.cosmichackerx' "$report")
-          test "$n" = 7 || { echo "::error::expected 7 findings, got $n"; exit 1; }
+          test "$n" = 10 || { echo "::error::expected 7 findings, got $n"; exit 1; }
           if grep -q 'ModernActivity\|Scene' "$report"; then echo "::error::false positive on the clean sample classes"; exit 1; fi
 
   dependabot-gaps:
