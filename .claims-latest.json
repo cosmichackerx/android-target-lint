@@ -1,0 +1,6 @@
+{
+  "claims": [
+    {"id": "jar pin in the README equals the newest release", "file": "README.md", "regex": "lintChecks\\(files\\(\"[^\"]*android-target-lint-([0-9.]+)\\.jar", "expect": {"latest_tag": "https://github.com/cosmichackerx/android-target-lint"}},
+    {"id": "Maven pin in the README equals the newest release", "file": "README.md", "regex": "android-target-lint:([0-9.]+)\"", "expect": {"latest_tag": "https://github.com/cosmichackerx/android-target-lint"}}
+  ]
+}

@@ -79,3 +79,12 @@ jobs:
           fail-on: warning
           # on pull requests: only gaps the PR introduces (needs fetch-depth: 0 above)
           pr-mode: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
+
+  claims:
+    name: README claims (claims-check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cosmichackerx/claims-check@v0.3.0
