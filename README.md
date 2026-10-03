@@ -1,5 +1,9 @@
 # android-target-lint
 
+[![CI](https://github.com/cosmichackerx/android-target-lint/actions/workflows/ci.yml/badge.svg)](https://github.com/cosmichackerx/android-target-lint/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/cosmichackerx/android-target-lint?sort=semver)](https://github.com/cosmichackerx/android-target-lint/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Android Lint rules for the `targetSdkVersion` 36 / 37 migration**: predictive back (`onBackPressed`, `KEYCODE_BACK`), the edge-to-edge opt-out, and fixed screen orientation on large screens. A single jar you add with `lintChecks(...)`. Works in Gradle `lint`, Android Studio and CI.
 
 These checks use Lint's UAST/XML APIs, so they resolve classes (a method named `onBackPressed` on a non-Activity is not reported). The sibling project [android-target-ready](https://github.com/cosmichackerx/android-target-ready) is a regex scanner that needs no Gradle build; this one is the type-aware version for projects that already run Android Lint.
@@ -119,3 +123,21 @@ The same sample contains a `ModernActivity` (an overload named `onBackPressed(St
 ```
 
 MIT licensed. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+
+## Related tools
+
+Small, independent tools by the same author, for build and CI hygiene and for migrations with a deadline. Each works on its own; none requires another.
+
+**Gradle and Android migrations**
+
+* [gradle-version-catalog-lint](https://github.com/cosmichackerx/gradle-version-catalog-lint): Lints `libs.versions.toml`: unused libraries, plugins and versions, dynamic or SNAPSHOT versions, hard-coded dependencies.
+* [gradle10-ready](https://github.com/cosmichackerx/gradle10-ready): Static scan of Gradle build scripts for what Gradle 10 removes (space assignment, multi-string dependencies, Kotlin DSL delegates). `--fix`, PR mode.
+* [agp9-ready](https://github.com/cosmichackerx/agp9-ready): Static scan of Gradle files for what Android Gradle Plugin 9 and 10 break (built-in Kotlin, legacy variant API, opt-outs), including `buildSrc`. `--fix`, PR mode.
+* [android-target-ready](https://github.com/cosmichackerx/android-target-ready): Static scanner for the targetSdk 36 / 37 migration in app code and manifests (edge-to-edge, predictive back, large screens).
+
+**CI and repository hygiene**
+
+* [node24-ready](https://github.com/cosmichackerx/node24-ready): Finds GitHub Actions still on the removed Node 20 runtime, also inside composite actions and reusable workflows, and the smallest node24 upgrade.
+* [dependabot-gaps](https://github.com/cosmichackerx/dependabot-gaps): Finds manifests your `dependabot.yml` does not cover, and dead or overlapping entries.
+* [sha256-ready](https://github.com/cosmichackerx/sha256-ready): Finds code that assumes 40-character Git hashes before Git 3.0 makes SHA-256 repositories the default.
+* [agent-context-diff](https://github.com/cosmichackerx/agent-context-diff): Diffs `AGENTS.md`, `CLAUDE.md`, Cursor rules and MCP configs between git refs (new servers, widened permissions, hidden Unicode).
