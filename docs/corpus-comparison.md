@@ -106,7 +106,33 @@ The remaining 20 atr-only are the 7 mapping tables above plus helpers and listen
 - Harness: `project(":modules:x")` names did not map to module directories when the Gradle root is a subdirectory (Thanox's `android/`), so no module edges were created; fixed by suffix matching.
 - No new bug in atl except the option above; a regression test for `x?.requestedOrientation = ...` was added.
 
+## Third run: Gradle-resolved classpaths (small subset)
+
+The direct-dependency jars used above miss transitive and unresolved artifacts, so I tried a fairer classpath: the repository's own `./gradlew` with an init script that dumps each project's `debugCompileClasspath` (external module artifacts only) and feeds those jars, plus `android.jar` and project-to-project edges, to atl 0.2.2. It was tried on the 8 repositories that had atr-only findings and fits in the box (JDK 17, Gradle 8.14.3 as launcher, Android SDK, about 1.1 GB heap, `--no-daemon`).
+
+**What worked.** Only **3 of 8** repositories gave a usable classpath: termux-app (142 jars, 4 projects), NewPipe (156 jars) and overlay-translator (170 jars). The other five did not:
+
+| repository | outcome |
+|---|---|
+| Xed-Editor | Gradle failed: a git submodule is missing |
+| KeyMapper | Gradle failed: needs the NDK |
+| SmartTube | Gradle failed: a referenced settings script is missing from the clone (old Gradle 7.5 project) |
+| Inure | build "succeeded" but only a stub project was resolved (4 jars), so the run is not valid; excluded |
+| Podroid | 0 jars resolved, 3 failures; excluded |
+
+Same three repositories, same atr output, atl 0.2.2 with direct-dependency jars versus Gradle-resolved jars (Kotlin stdlib/compiler jars excluded in both, as before, because the Lint CLI cannot read newer Kotlin metadata):
+
+| | both | atr only | atl only |
+|---|---|---|---|
+| direct-dependency jars (before) | 9 | 9 | 0 |
+| Gradle-resolved jars | 10 | 8 | 0 |
+
+- The one finding that moved is `FilePickerActivityHelper.onBackPressed()` in NewPipe, whose base class `com.nononsenseapps.filepicker.FilePickerActivity` comes from a library that the direct-dependency run could not resolve (4 unresolved artifacts). With the Gradle classpath atl reports it. That is the kind of miss the classpath explains.
+- The 8 that remain are all `KEYCODE_BACK` hits outside Activities (a `View.onKeyPreIme`, an anonymous `FrameLayout.dispatchKeyEvent`, helper classes, a key-mapping table in termux's `KeyHandler`). That is atl's by-design scope (see `checkViews` above), not a classpath problem. Better jars would not change them.
+
+**Caveats.** Three repositories and 18 findings is a tiny sample; one recovered finding is an anecdote, not a rate. The whole subset was chosen because it had atr-only findings, so it overstates the gap. Kotlin library jars are still excluded. Whether the "atl only"/"atr only" split is right was read by the author (me), not independently. Recall against ground truth is still not measured, and agreement is not accuracy. The init script and driver are not part of this repository.
+
 ## Not done
 
-- Gradle-resolved classpaths (transitive dependencies, BOMs, variants) would make atl's recall fairer than direct-dependency jars; that needs a working build of each project.
+- Gradle-resolved classpaths on the full corpus: only 3 repositories could be tried (see the next section).
 - No ground truth: nobody ran these apps on an Android 16 device.
