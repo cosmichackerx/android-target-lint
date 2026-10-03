@@ -117,4 +117,29 @@ class BackPressedOverrideDetectorTest : LintDetectorTest() {
             ).indented(),
         ).run().expectClean()
     }
+
+    /** Regression: found by running the pack over public repos; AndroidX base classes override onBackPressed themselves. */
+    fun testSubclassOfAnAndroidxStyleBaseClassIsReported() {
+        lint().files(
+            *Stubs.all,
+            Stubs.manifestWith(36, ""),
+            java(
+                """
+                package androidx.activity;
+                public class ComponentActivity extends android.app.Activity {
+                    @Override public void onBackPressed() { super.onBackPressed(); }
+                }
+                """,
+            ).indented(),
+            kotlin(
+                """
+                package test.pkg
+                import androidx.activity.ComponentActivity
+                class Main : ComponentActivity() {
+                    override fun onBackPressed() { }
+                }
+                """,
+            ).indented(),
+        ).run().expectContains("src/test/pkg/Main.kt:4: Warning: onBackPressed()")
+    }
 }
