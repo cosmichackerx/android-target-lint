@@ -3,6 +3,8 @@
 ## 0.2.2 - 2026-10-03
 
 - `KeyCodeBackHandling` option `checkViews` (default `false`): also report `KEYCODE_BACK` in the key callbacks of `android.view.View` subclasses.
+- Docs: second corpus run with dependency jars resolved and a hand-checked precision sample (`docs/corpus-comparison.md`, scripts `runall-deps.sh`, `resolve_deps.py`, `sample.py`).
+- Test stub `Activity.getRequestedOrientation` and a regression test for `activity?.requestedOrientation = X`.
 
 ## 0.2.1 - 2026-10-03
 
