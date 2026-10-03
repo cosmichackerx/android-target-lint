@@ -112,6 +112,29 @@ class KeyCodeBackDetectorTest : LintDetectorTest() {
         ).run().expectWarningCount(1).expectContains("KEYCODE_BACK handled in setOnKeyListener")
     }
 
+    fun testSetOnKeyListenerLambdaOnAnUnresolvedReceiverTypeIsReported() {
+        // e.g. a BottomSheetDialog whose library is not on the lint classpath (seen on microg in the corpus comparison)
+        lint().files(
+            *Stubs.all,
+            Stubs.manifestWith(36, ""),
+            kotlin(
+                """
+                package test.pkg
+                import android.view.KeyEvent
+                import com.example.missing.SheetDialog
+                class Show {
+                    fun go(d: SheetDialog) {
+                        d.setOnKeyListener { _, keyCode, event ->
+                            if (keyCode == KeyEvent.KEYCODE_BACK) { return@setOnKeyListener true }
+                            return@setOnKeyListener false
+                        }
+                    }
+                }
+                """,
+            ).indented(),
+        ).allowCompilationErrors().run().expectWarningCount(1).expectContains("KEYCODE_BACK handled in setOnKeyListener")
+    }
+
     fun testOnKeyOfAnOnKeyListenerIsReportedButAUnrelatedOnKeyIsNot() {
         lint().files(
             *Stubs.all,
