@@ -47,7 +47,9 @@ class KeyCodeBackDetector : Detector(), SourceCodeScanner {
         while (node != null) {
             if (node is ULambdaExpression) {
                 val call = node.uastParent as? UCallExpression
-                if (call != null && call.methodName in LISTENER_SETTERS) return call.methodName
+                // methodName is null when the receiver type does not resolve (library dialogs missing from the classpath)
+                val name = call?.methodName ?: call?.methodIdentifier?.name
+                if (name in LISTENER_SETTERS) return name
             }
             if (node is UMethod) {
                 val cls = node.javaPsi.containingClass ?: return null
