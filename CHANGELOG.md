@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.1 - 2026-10-03
 
 - Fixed `OnBackPressedOverride` missing activities that extend AndroidX base classes (`AppCompatActivity`, `FragmentActivity`, ...): any no-arg `onBackPressed()` in an `Activity`/`Dialog` subclass is reported.
 - `KeyCodeBackHandling` also reports `OnKeyListener.onKey` and lambdas given to `setOnKeyListener` / `setOnDispatchKeyListener`, including when the receiver type does not resolve.
