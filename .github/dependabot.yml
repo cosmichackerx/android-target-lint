@@ -16,3 +16,8 @@ updates:
         patterns: ["com.android.*", "com.android.tools.lint*"]
     cooldown:
       default-days: 7
+    # Major bumps of AGP, Kotlin and the Gradle wrapper change the Lint API the rules are built against
+    # (lint = AGP + 23) and the test infrastructure; they are done by hand with a release, not by a bot PR.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
