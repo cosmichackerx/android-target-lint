@@ -156,4 +156,33 @@ class FixedOrientationConditionalTest : LintDetectorTest() {
             ).indented(),
         ).skipTestModes(TestMode.BODY_REMOVAL).run().expectWarningCount(2).expectContains("Main.kt:6").expectContains("Main.kt:9")
     }
+
+    fun testPropertyAssignmentWithAnExplicitOrSafeCallReceiverIsChecked() {
+        lint().files(
+            *Stubs.all,
+            Stubs.manifestWith(36, ""),
+            kotlin(
+                """
+                package test.pkg
+                import android.app.Activity
+                import android.content.pm.ActivityInfo
+                fun lock(activity: Activity?, other: Activity) {
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                    other.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                }
+                class Main : Activity() {
+                    fun implicit() { requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
+                }
+                fun viaRun(context: android.content.Context) {
+                    val activity = (context as? Activity) ?: run {
+                        var ctx = context
+                        ctx as? Activity
+                    }
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                }
+                """,
+            ).indented(),
+        ).skipTestModes(TestMode.BODY_REMOVAL, TestMode.PARENTHESIZED).run().expectWarningCount(4)
+    }
 }

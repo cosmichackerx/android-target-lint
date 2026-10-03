@@ -16,6 +16,7 @@ object Stubs {
             public boolean onKeyUp(int keyCode, KeyEvent event) { return false; }
             public boolean dispatchKeyEvent(KeyEvent event) { return false; }
             public void setRequestedOrientation(int requestedOrientation) {}
+            public int getRequestedOrientation() { return -1; }
         }
         """,
     ).indented()
