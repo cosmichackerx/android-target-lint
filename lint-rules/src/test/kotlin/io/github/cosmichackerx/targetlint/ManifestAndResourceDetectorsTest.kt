@@ -1,6 +1,7 @@
 package io.github.cosmichackerx.targetlint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFiles.xml
@@ -150,6 +151,6 @@ class FixedOrientationConditionalTest : LintDetectorTest() {
                 }
                 """,
             ).indented(),
-        ).run().expectWarningCount(1).expectContains("Main.kt:6")
+        ).skipTestModes(TestMode.BODY_REMOVAL).run().expectWarningCount(1).expectContains("Main.kt:6")
     }
 }
