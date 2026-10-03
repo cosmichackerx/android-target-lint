@@ -91,12 +91,13 @@ The same sample contains a `ModernActivity` (an overload named `onBackPressed(St
 
 ## What was verified, and what was not
 
-- Verified: 19 unit tests pass on JDK 17 and 21 (Linux), 17 on Windows and macOS (see CI); the sample app is linted by a real AGP 8.13.2 build in CI.
+- Verified: the unit tests pass on JDK 17 and 21 (Linux), 17 on Windows and macOS (see CI); the sample app is linted by a real AGP 8.13.2 build in CI.
 - Built against Lint 31.13.2 (AGP 8.13.2). Other Lint/AGP versions are untested.
-- Not measured: recall on real projects. Only the cases covered by tests and the sample are known to behave.
-- Some of these situations may also be flagged by Android Lint itself or by AndroidX lint checks; overlap with those was not checked.
+- Not measured: recall and precision against ground truth. Only the cases covered by tests and the sample are known to behave. A cross-check of the six predictive-back / edge-to-edge / orientation rules against the independent [android-target-ready](https://github.com/cosmichackerx/android-target-ready) scanner on 52 public repositories is in [docs/corpus-comparison.md](docs/corpus-comparison.md): 71 % agreement, and it found bugs in both tools. Agreement between two tools is not accuracy.
+- Android Lint itself has overlapping checks (`GestureBackNavigation`, `LockedOrientationActivity`, and the `DiscouragedApi` message about fixed orientation on Android 16). The overlap with these rules was not measured; the rules here additionally key on `targetSdkVersion` 36/37 and ship quick-fixes.
+- `KeyCodeBackHandling` deliberately reports only `Activity`/`Dialog` key callbacks, `OnKeyListener.onKey` and lambdas passed to `setOnKeyListener`; it does not report `View.onKeyDown` overrides (to avoid flagging key-mapping tables), so it reports fewer sites than the pattern scanner.
 - Constant evaluation is limited: a value computed at runtime is not seen.
-- No quick-fixes yet.
+- Quick-fixes exist for six of the ten rules (see above); they change source/manifest text and should be reviewed like any edit.
 
 ## Build
 
