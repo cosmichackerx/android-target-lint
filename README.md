@@ -1,5 +1,9 @@
 # android-target-lint
 
+[![CI](https://github.com/cosmichackerx/android-target-lint/actions/workflows/ci.yml/badge.svg)](https://github.com/cosmichackerx/android-target-lint/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/cosmichackerx/android-target-lint?sort=semver)](https://github.com/cosmichackerx/android-target-lint/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Android Lint rules for the `targetSdkVersion` 36 / 37 migration**: predictive back (`onBackPressed`, `KEYCODE_BACK`), the edge-to-edge opt-out, and fixed screen orientation on large screens. A single jar you add with `lintChecks(...)`. Works in Gradle `lint`, Android Studio and CI.
 
 These checks use Lint's UAST/XML APIs, so they resolve classes (a method named `onBackPressed` on a non-Activity is not reported). The sibling project [android-target-ready](https://github.com/cosmichackerx/android-target-ready) is a regex scanner that needs no Gradle build; this one is the type-aware version for projects that already run Android Lint.
