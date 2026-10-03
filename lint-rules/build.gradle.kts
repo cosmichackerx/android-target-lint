@@ -45,7 +45,7 @@ tasks.jar {
 tasks.test {
     useJUnit()
     maxHeapSize = "1g"
-    testLogging { events("passed", "failed", "skipped"); showStandardStreams = false }
+    testLogging { events("passed", "failed", "skipped"); showStandardStreams = false; exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL }
 }
 
 publishing {

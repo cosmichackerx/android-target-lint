@@ -1,7 +1,9 @@
 package io.github.cosmichackerx.targetlint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
+import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFiles.xml
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
@@ -123,5 +125,35 @@ class FixedOrientationDetectorTest : LintDetectorTest() {
                 """,
             ).indented(),
         ).run().expectWarningCount(1).expectContains("[FixedOrientationCode]")
+    }
+}
+
+class FixedOrientationConditionalTest : LintDetectorTest() {
+    override fun getDetector(): Detector = FixedOrientationDetector()
+    override fun getIssues(): List<Issue> = listOf(FixedOrientationDetector.ISSUE_CODE)
+
+    fun testBranchesOfAConditionalAreChecked() {
+        lint().files(
+            *Stubs.all,
+            Stubs.manifestWith(36, ""),
+            kotlin(
+                """
+                package test.pkg
+                import android.app.Activity
+                import android.content.pm.ActivityInfo
+                class Main : Activity() {
+                    fun flip(landscape: Boolean) {
+                        setRequestedOrientation(if (landscape) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                    }
+                    fun viaWhen(mode: Int) {
+                        setRequestedOrientation(when (mode) { 1 -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED })
+                    }
+                    fun fine(x: Boolean) {
+                        setRequestedOrientation(if (x) ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                    }
+                }
+                """,
+            ).indented(),
+        ).skipTestModes(TestMode.BODY_REMOVAL).run().expectWarningCount(2).expectContains("Main.kt:6").expectContains("Main.kt:9")
     }
 }
