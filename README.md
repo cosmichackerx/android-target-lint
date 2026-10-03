@@ -54,6 +54,18 @@ dependencies {
 </lint>
 ```
 
+`KeyCodeBackHandling` has one option, `checkViews` (default `false`): set it to also check the key callbacks of `android.view.View` subclasses
+(`onKeyDown`, `onKeyUp`, `onKeyPreIme`, `onKeyLongPress`, `dispatchKeyEvent`). It is off by default because many custom views map every key code,
+including `KEYCODE_BACK`, for input handling (terminals, game pads); turn it on to match what a text-based scanner reports.
+
+```xml
+<lint>
+  <issue id="KeyCodeBackHandling">
+    <option name="checkViews" value="true" />
+  </issue>
+</lint>
+```
+
 ### Via GitHub Packages (Maven)
 
 Each release is also published as `io.github.cosmichackerx:android-target-lint:<version>` to GitHub Packages. **GitHub Packages requires
@@ -95,7 +107,7 @@ The same sample contains a `ModernActivity` (an overload named `onBackPressed(St
 - Built against Lint 31.13.2 (AGP 8.13.2). Other Lint/AGP versions are untested.
 - Not measured: recall and precision against ground truth. Only the cases covered by tests and the sample are known to behave. A cross-check of the six predictive-back / edge-to-edge / orientation rules against the independent [android-target-ready](https://github.com/cosmichackerx/android-target-ready) scanner on 52 public repositories is in [docs/corpus-comparison.md](docs/corpus-comparison.md): 71 % agreement, and it found bugs in both tools. Agreement between two tools is not accuracy.
 - Android Lint itself has overlapping checks (`GestureBackNavigation`, `LockedOrientationActivity`, and the `DiscouragedApi` message about fixed orientation on Android 16). The overlap with these rules was not measured; the rules here additionally key on `targetSdkVersion` 36/37 and ship quick-fixes.
-- `KeyCodeBackHandling` deliberately reports only `Activity`/`Dialog` key callbacks, `OnKeyListener.onKey` and lambdas passed to `setOnKeyListener`; it does not report `View.onKeyDown` overrides (to avoid flagging key-mapping tables), so it reports fewer sites than the pattern scanner.
+- `KeyCodeBackHandling` deliberately reports only `Activity`/`Dialog` key callbacks, `OnKeyListener.onKey` and lambdas passed to `setOnKeyListener`; it does not report `View.onKeyDown` overrides unless you enable the `checkViews` option (to avoid flagging key-mapping tables), so it reports fewer sites than the pattern scanner.
 - Constant evaluation is limited: a value computed at runtime is not seen.
 - Quick-fixes exist for six of the ten rules (see above); they change source/manifest text and should be reviewed like any edit.
 
