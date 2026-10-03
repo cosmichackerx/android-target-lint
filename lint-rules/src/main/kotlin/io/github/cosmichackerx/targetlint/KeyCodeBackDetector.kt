@@ -10,11 +10,12 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiField
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
-import org.jetbrains.uast.getParentOfType
 
 /**
- * `KeyEvent.KEYCODE_BACK` handled in the key callbacks of an Activity or Dialog. On Android 16 the back key is not
+ * `KeyEvent.KEYCODE_BACK` handled in the key callbacks of an Activity or Dialog, in an `OnKeyListener`, or in a lambda given to `setOnKeyListener`. On Android 16 the back key is not
  * delivered to apps that target API 36 (predictive back). Only the key callbacks of real Activity / Dialog subclasses
  * are checked, so a terminal emulator mapping `KEYCODE_BACK` to an escape sequence in its own class is not reported.
  */
@@ -25,10 +26,7 @@ class KeyCodeBackDetector : Detector(), SourceCodeScanner {
     override fun visitReference(context: JavaContext, reference: org.jetbrains.uast.UReferenceExpression, referenced: com.intellij.psi.PsiElement) {
         val field = referenced as? PsiField ?: return
         if (field.containingClass?.qualifiedName != "android.view.KeyEvent") return
-        val method = reference.getParentOfType<UMethod>() ?: return
-        if (method.name !in HANDLERS) return
-        val cls = method.javaPsi.containingClass ?: return
-        if (BACK_HOSTS.none { context.evaluator.extendsClass(cls, it, true) }) return
+        val handler = handlerName(context, reference as UElement) ?: return
         val target = context.project.targetSdk
         val note = if (target >= 36) "Back key events are no longer delivered on Android 16 devices for apps targeting API $target."
         else "Back key events stop being delivered on Android 16 devices once the app targets API 36 (currently $target)."
@@ -36,11 +34,36 @@ class KeyCodeBackDetector : Detector(), SourceCodeScanner {
             ISSUE,
             reference as UElement,
             context.getLocation(reference),
-            "`KEYCODE_BACK` handled in `${method.name}`. $note Use an `OnBackPressedCallback` instead.",
+            "`KEYCODE_BACK` handled in `$handler`. $note Use an `OnBackPressedCallback` instead.",
         )
     }
 
+    /**
+     * The name of the key callback that contains [from], or null when it is not a back-relevant one: a key callback of an
+     * Activity/Dialog subclass, the `onKey` of an `OnKeyListener`, or a lambda given to `setOnKeyListener`.
+     */
+    private fun handlerName(context: JavaContext, from: UElement): String? {
+        var node: UElement? = from.uastParent
+        while (node != null) {
+            if (node is ULambdaExpression) {
+                val call = node.uastParent as? UCallExpression
+                if (call != null && call.methodName in LISTENER_SETTERS) return call.methodName
+            }
+            if (node is UMethod) {
+                val cls = node.javaPsi.containingClass ?: return null
+                val evaluator = context.evaluator
+                if (node.name in HANDLERS && BACK_HOSTS.any { evaluator.extendsClass(cls, it, true) }) return node.name
+                if (node.name == "onKey" && KEY_LISTENERS.any { evaluator.implementsInterface(cls, it, false) }) return node.name
+                return null
+            }
+            node = node.uastParent
+        }
+        return null
+    }
+
     companion object {
+        private val LISTENER_SETTERS = setOf("setOnKeyListener", "setOnDispatchKeyListener")
+        private val KEY_LISTENERS = listOf("android.view.View.OnKeyListener", "android.content.DialogInterface.OnKeyListener")
         private val HANDLERS = setOf("onKeyDown", "onKeyUp", "onKeyPreIme", "onKeyLongPress", "dispatchKeyEvent")
 
         val ISSUE: Issue = Issue.create(

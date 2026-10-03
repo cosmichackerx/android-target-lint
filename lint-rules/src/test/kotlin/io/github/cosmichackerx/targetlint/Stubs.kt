@@ -25,6 +25,26 @@ object Stubs {
         package android.app;
         public class Dialog {
             public void onBackPressed() {}
+            public void setOnKeyListener(android.content.DialogInterface.OnKeyListener l) {}
+        }
+        """,
+    ).indented()
+
+    val dialogInterface: TestFile = java(
+        """
+        package android.content;
+        public interface DialogInterface {
+            interface OnKeyListener { boolean onKey(DialogInterface dialog, int keyCode, android.view.KeyEvent event); }
+        }
+        """,
+    ).indented()
+
+    val view: TestFile = java(
+        """
+        package android.view;
+        public class View {
+            public void setOnKeyListener(OnKeyListener l) {}
+            public interface OnKeyListener { boolean onKey(View v, int keyCode, KeyEvent event); }
         }
         """,
     ).indented()
@@ -72,7 +92,7 @@ object Stubs {
         """,
     ).indented()
 
-    val all: Array<TestFile> = arrayOf(activity, dialog, keyEvent, activityInfo)
+    val all: Array<TestFile> = arrayOf(activity, dialog, dialogInterface, view, keyEvent, activityInfo)
 
     fun manifestWith(target: Int, body: String): TestFile = manifest(
         """

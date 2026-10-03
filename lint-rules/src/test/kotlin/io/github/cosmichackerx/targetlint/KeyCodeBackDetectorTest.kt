@@ -90,4 +90,48 @@ class KeyCodeBackDetectorTest : LintDetectorTest() {
             ).indented(),
         ).run().expectClean()
     }
+
+    fun testKotlinLambdaGivenToSetOnKeyListenerIsReported() {
+        lint().files(
+            *Stubs.all,
+            Stubs.manifestWith(36, ""),
+            kotlin(
+                """
+                package test.pkg
+                import android.app.Dialog
+                import android.view.KeyEvent
+                class Show {
+                    fun go(d: Dialog) {
+                        d.setOnKeyListener { _, keyCode, event ->
+                            keyCode == KeyEvent.KEYCODE_BACK
+                        }
+                    }
+                }
+                """,
+            ).indented(),
+        ).run().expectWarningCount(1).expectContains("KEYCODE_BACK handled in setOnKeyListener")
+    }
+
+    fun testOnKeyOfAnOnKeyListenerIsReportedButAUnrelatedOnKeyIsNot() {
+        lint().files(
+            *Stubs.all,
+            Stubs.manifestWith(36, ""),
+            java(
+                """
+                package test.pkg;
+                import android.view.KeyEvent;
+                import android.view.View;
+                public class L implements View.OnKeyListener {
+                    @Override public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        return keyCode == KeyEvent.KEYCODE_BACK;
+                    }
+                }
+                class Table {
+                    boolean onKey(int keyCode) { return keyCode == KeyEvent.KEYCODE_BACK; }
+                    boolean lookup(int keyCode) { return keyCode == KeyEvent.KEYCODE_BACK; }
+                }
+                """,
+            ).indented(),
+        ).run().expectWarningCount(1).expectContains("L.java:6")
+    }
 }
