@@ -140,6 +140,6 @@ class BackPressedOverrideDetectorTest : LintDetectorTest() {
                 }
                 """,
             ).indented(),
-        ).run().expectWarningCount(1).expectContains("Main.kt:4")
+        ).run().expectContains("src/test/pkg/Main.kt:4: Warning: onBackPressed()")
     }
 }
