@@ -145,12 +145,15 @@ class FixedOrientationConditionalTest : LintDetectorTest() {
                     fun flip(landscape: Boolean) {
                         setRequestedOrientation(if (landscape) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                     }
+                    fun viaWhen(mode: Int) {
+                        setRequestedOrientation(when (mode) { 1 -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED })
+                    }
                     fun fine(x: Boolean) {
                         setRequestedOrientation(if (x) ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR else ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                     }
                 }
                 """,
             ).indented(),
-        ).skipTestModes(TestMode.BODY_REMOVAL).run().expectWarningCount(1).expectContains("Main.kt:6")
+        ).skipTestModes(TestMode.BODY_REMOVAL).run().expectWarningCount(2).expectContains("Main.kt:6").expectContains("Main.kt:9")
     }
 }
