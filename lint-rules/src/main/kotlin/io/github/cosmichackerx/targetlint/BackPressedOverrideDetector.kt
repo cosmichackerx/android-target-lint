@@ -17,7 +17,7 @@ import org.jetbrains.uast.UMethod
  * Android 16 (API 36) the system no longer calls it on devices running Android 16.
  *
  * Unlike a text search this resolves the class: only real subclasses of android.app.Activity / android.app.Dialog
- * that override the framework method are reported, not methods that merely share the name.
+ * (directly or through androidx classes) are reported, not methods that merely share the name.
  */
 class BackPressedOverrideDetector : Detector(), SourceCodeScanner {
 
@@ -29,11 +29,8 @@ class BackPressedOverrideDetector : Detector(), SourceCodeScanner {
             val cls = node.javaPsi.containingClass ?: return
             val evaluator = context.evaluator
             if (BACK_HOSTS.none { evaluator.extendsClass(cls, it, true) }) return
-            // must override the framework method, not just share its name
-            val overridesFramework = node.javaPsi.findSuperMethods().any { sup ->
-                sup.name == "onBackPressed" && sup.containingClass?.qualifiedName in BACK_HOSTS
-            }
-            if (!overridesFramework) return
+            // A no-argument onBackPressed() in a subclass of Activity/Dialog always overrides the inherited method, even when
+            // an intermediate class (androidx ComponentActivity, AppCompatActivity, ...) overrides it first.
             val target = context.project.targetSdk
             val note = if (target >= 36) "This app targets API $target, so it is no longer called on Android 16 devices."
             else "It will stop being called on Android 16 devices once the app targets API 36 (currently $target)."
