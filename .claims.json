@@ -1,0 +1,6 @@
+{
+  "claims": [
+    {"id": "jar pin in the README equals the newest CHANGELOG version", "file": "README.md", "regex": "lintChecks\\(files\\(\"[^\"]*android-target-lint-([0-9.]+)\\.jar", "expect": {"file": "CHANGELOG.md", "regex": "^# Changelog\\s+## ([0-9.]+) "}},
+    {"id": "Maven pin in the README equals the newest CHANGELOG version", "file": "README.md", "regex": "android-target-lint:([0-9.]+)\"", "expect": {"file": "CHANGELOG.md", "regex": "^# Changelog\\s+## ([0-9.]+) "}}
+  ]
+}

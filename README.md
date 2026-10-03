@@ -118,7 +118,7 @@ The same sample contains a `ModernActivity` (an overload named `onBackPressed(St
 ## Build
 
 ```
-./gradlew :lint-rules:test :lint-rules:jar        # lint-rules/build/libs/android-target-lint-0.1.0.jar
+./gradlew :lint-rules:test :lint-rules:jar        # lint-rules/build/libs/android-target-lint-<version>.jar
 ./gradlew -PwithSample :sample-app:lintDebug      # needs an Android SDK with platform 36
 ```
 
