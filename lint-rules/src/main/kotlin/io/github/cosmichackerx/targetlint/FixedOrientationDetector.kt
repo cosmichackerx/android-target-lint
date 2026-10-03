@@ -15,6 +15,9 @@ import com.android.tools.lint.detector.api.XmlContext
 import com.android.tools.lint.detector.api.XmlScanner
 import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.UIfExpression
+import org.jetbrains.uast.UParenthesizedExpression
 import org.w3c.dom.Attr
 
 /**
@@ -46,14 +49,20 @@ class FixedOrientationDetector : Detector(), XmlScanner, SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!context.evaluator.isMemberInSubClassOf(method, "android.app.Activity", false)) return
         val arg = node.valueArguments.firstOrNull() ?: return
-        val value = ConstantEvaluator.evaluate(context, arg) as? Int ?: return
-        if (value !in CODE_VALUES) return
+        if (candidates(arg).none { (ConstantEvaluator.evaluate(context, it) as? Int) in CODE_VALUES }) return
         context.report(
             ISSUE_CODE,
             node,
             context.getLocation(node),
             "`setRequestedOrientation` with a fixed portrait/landscape value is ignored on screens of 600dp and wider for apps that target API 36 or higher (this app: targetSdk ${context.project.targetSdk}); ${NO_OPT_OUT}",
         )
+    }
+
+    /** The argument itself, or every branch of an `if`/ternary used as the argument (`x = if (a) LANDSCAPE else PORTRAIT`). */
+    private fun candidates(e: UExpression): List<UExpression> = when (e) {
+        is UIfExpression -> listOfNotNull(e.thenExpression, e.elseExpression).flatMap { candidates(it) }
+        is UParenthesizedExpression -> candidates(e.expression)
+        else -> listOf(e)
     }
 
     companion object {
