@@ -41,7 +41,7 @@ Behaviour is from the [Android 16 behavior changes](https://developer.android.co
 
 ```kotlin
 dependencies {
-    lintChecks(files("../lint-libs/android-target-lint-0.1.0.jar"))
+    lintChecks(files("../lint-libs/android-target-lint-0.2.1.jar"))
 }
 ```
 
@@ -68,7 +68,7 @@ repositories {
         credentials { username = providers.gradleProperty("gpr.user").get(); password = providers.gradleProperty("gpr.key").get() }
     }
 }
-dependencies { lintChecks("io.github.cosmichackerx:android-target-lint:0.2.0") }
+dependencies { lintChecks("io.github.cosmichackerx:android-target-lint:0.2.1") }
 ```
 
 Maven Central is not used (it needs signing keys and a namespace verification that the repository owner has to do).
