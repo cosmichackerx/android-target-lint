@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2 - 2026-10-03
+
+- `KeyCodeBackHandling` option `checkViews` (default `false`): also report `KEYCODE_BACK` in the key callbacks of `android.view.View` subclasses.
+
 ## 0.2.1 - 2026-10-03
 
 - Fixed `OnBackPressedOverride` missing activities that extend AndroidX base classes (`AppCompatActivity`, `FragmentActivity`, ...): any no-arg `onBackPressed()` in an `Activity`/`Dialog` subclass is reported.

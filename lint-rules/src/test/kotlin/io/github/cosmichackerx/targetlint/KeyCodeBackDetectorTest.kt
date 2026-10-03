@@ -52,6 +52,32 @@ class KeyCodeBackDetectorTest : LintDetectorTest() {
         ).run().expectWarningCount(1).expectContains("once the app targets API 36 (currently 35)")
     }
 
+    private val customView = java(
+        """
+        package test.pkg;
+        import android.content.Context;
+        import android.view.KeyEvent;
+        import android.view.View;
+        public class PlayerView extends View {
+            public PlayerView(Context c) { super(c); }
+            public boolean onKeyDown(int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) { return true; }
+                return false;
+            }
+        }
+        """,
+    ).indented()
+
+    fun testViewSubclassIsNotReportedByDefault() {
+        lint().files(*Stubs.all, Stubs.manifestWith(36, ""), customView).run().expectClean()
+    }
+
+    fun testViewSubclassIsReportedWithCheckViewsOption() {
+        lint().files(*Stubs.all, Stubs.manifestWith(36, ""), customView)
+            .configureOption(KeyCodeBackDetector.CHECK_VIEWS, true)
+            .run().expectWarningCount(1).expectContains("KEYCODE_BACK handled in onKeyDown")
+    }
+
     fun testKeyMappingInAnUnrelatedClassIsNotReported() {
         lint().files(
             *Stubs.all,
